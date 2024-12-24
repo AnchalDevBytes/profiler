@@ -1,20 +1,31 @@
 import React, { useEffect, useState } from "react";
+import Skeleton from "./components/Skeleton";
 
 const App = () => {
   const [data, setData] = useState();
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    const response = await fetch(
-      "https://randomuser.me/api/?page=1&results=1&seed=abc"
-    );
-    const dataObj = await response.json();
-    const finalData = dataObj.results && dataObj.results[0];
-    setData(finalData);
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://randomuser.me/api/?page=1&results=1&seed=abc"
+      );
+      const dataObj = await response.json();
+      const finalData = dataObj.results && dataObj.results[0];
+      setData(finalData);
+    } catch (error) {
+      console.error("Error while fetching user details...", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (loading) return <Skeleton/>
 
   return (
     <div className="h-screen flex justify-center items-center bg-gradient-to-br from-cyan-200 via-violet-300 to-sky-200">
@@ -25,7 +36,7 @@ const App = () => {
               <img
                 src={data?.picture?.large}
                 alt="Profile"
-                className="w-full h-full rounded-full bg-white"
+                className="w-full h-full rounded-full text-center bg-cyan-200"
               />
             </div>
           </div>
@@ -41,7 +52,7 @@ const App = () => {
                 </p>
                 <div className="grid grid-cols-3 gap-2 -ml-6 my-4">
                   <div className="flex flex-col text-center">
-                    <p className="font-bold text-lg">57</p>
+                    <p className="font-bold text-lg">{data?.dob?.age}</p>
                     <p className="text-sm text-gray-600">Age</p>
                   </div>
                   <div className="flex flex-col text-center">
@@ -49,7 +60,7 @@ const App = () => {
                     <p className="text-sm text-gray-600">Years Active</p>
                   </div>
                   <div className="flex flex-col text-center">
-                    <p className="font-bold text-lg">Ireland</p>
+                    <p className="font-bold text-lg">{data?.location?.country}</p>
                     <p className="text-sm text-gray-600">Country</p>
                   </div>
                 </div>
